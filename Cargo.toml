@@ -23,6 +23,11 @@ static_assertions = "1"
 [target.'cfg(loom)'.dependencies]
 loom = "0.7"
 
+[[bench]]
+name = "hot_path"
+path = "benches/hot_path.rs"
+harness = false
+
 [lints.rust]
 private_interfaces = "deny"
 private_bounds = "deny"

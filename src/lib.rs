@@ -1,11 +1,3 @@
-#![cfg_attr(
-    test,
-    allow(clippy::unwrap_used, clippy::expect_used, clippy::panic, clippy::unreachable)
-)]
-#![forbid(unsafe_code)]
-#![deny(missing_docs)]
-#![deny(unreachable_pub)]
-
 //! # `kernel` — xhyper.rs L0 语义信任根
 //!
 //! `kernel` 定义全系统必须唯一且长期稳定的四类语义：
@@ -21,6 +13,14 @@
 //!
 //! 旧 `clock::{Timestamp, Clock, SystemClock, MonotonicInstant, ClockDomain}` 已删除
 //! （SPEC §1.2：禁止两套 clock/time 并存）。调用方改用 [`time`]。
+
+#![cfg_attr(
+    test,
+    allow(clippy::unwrap_used, clippy::expect_used, clippy::panic, clippy::unreachable)
+)]
+#![forbid(unsafe_code)]
+#![deny(missing_docs)]
+#![deny(unreachable_pub)]
 
 pub mod error;
 pub mod lifecycle;

@@ -39,6 +39,13 @@ pub enum TimeError {
 ///
 /// 全系统唯一的绝对时刻基础 primitive（SPEC §3.1 / TIME-INV-005）。内部为 `i64` 纳秒，
 /// 支持 epoch 前后。不实现 `Default`，禁止用零值冒充有效时间。
+///
+/// # Examples
+///
+/// ```
+/// let time = kernel::UnixTimeNs::from_unix_nanos(1_500_000_000);
+/// assert_eq!(time.as_unix_nanos(), 1_500_000_000);
+/// ```
 #[repr(transparent)]
 #[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub struct UnixTimeNs(i64);

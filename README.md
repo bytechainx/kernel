@@ -9,6 +9,15 @@
 | 许可 | MIT |
 | 发布 | 仅从 Git 源码消费，不发布到 crates.io |
 
+## 安装
+
+通过 Git 依赖引入：
+
+```toml
+[dependencies]
+kernel = { git = "https://github.com/bytechainx/kernel" }
+```
+
 ## 获取源码
 
 ```bash
