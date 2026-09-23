@@ -1,0 +1,44 @@
+[package]
+name = "kernel"
+version = "0.4.2"
+edition = "2024"
+rust-version = "1.88"
+description = "时间、生命周期与错误处理的 L0 kernel 值对象"
+license = "MIT"
+repository = "https://github.com/bytechainx/kernel"
+homepage = "https://github.com/bytechainx/kernel"
+documentation = "https://github.com/bytechainx/kernel#readme"
+readme = "README.md"
+publish = false
+include = ["src/**/*", "tests/**/*", "benches/**/*", "examples/**/*", "docs/**/*", "README.md", "CHANGELOG.md", "CONTEXT.md", "CONTRIBUTING.md", "LICENSE", "Cargo.toml"]
+
+[dependencies]
+thiserror = "2"
+
+[dev-dependencies]
+proptest = "1"
+serde = { version = "1", features = ["derive"] }
+static_assertions = "1"
+
+[target.'cfg(loom)'.dependencies]
+loom = "0.7"
+
+[lints.rust]
+private_interfaces = "deny"
+private_bounds = "deny"
+unused_must_use = "warn"
+unexpected_cfgs = { level = "warn", check-cfg = ["cfg(loom)"] }
+
+[lints.clippy]
+unwrap_used = "deny"
+expect_used = "deny"
+panic = "deny"
+unreachable = "deny"
+todo = "deny"
+unimplemented = "deny"
+
+[package.metadata.bytechainx]
+module_id = "kernel"
+owner = "bytechainx"
+role = "kernel"
+semantic_contract = "docs/标准.md"
