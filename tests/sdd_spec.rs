@@ -11,6 +11,13 @@ const STANDARD: &str = include_str!("../docs/标准.md");
 fn assert_duties() {
     assert!(STANDARD.contains("## 职责"));
     assert!(STANDARD.contains("L0"));
+    let (guard, signal) = kernel::ShutdownSignal::new();
+    let observer = signal.clone();
+    assert!(!signal.is_triggered());
+    guard.trigger();
+    assert!(signal.is_triggered());
+    assert!(observer.is_triggered());
+    observer.wait();
 }
 
 #[test]
@@ -23,4 +30,6 @@ fn assert_scope() {
 fn assert_compatibility() {
     assert!(STANDARD.contains("## 兼容要求"));
     assert!(STANDARD.contains("UnixTimeNs"));
+    assert!(kernel::ComponentState::Created.can_transition_to(kernel::ComponentState::Starting));
+    assert!(!kernel::ComponentState::Stopped.can_transition_to(kernel::ComponentState::Running));
 }
