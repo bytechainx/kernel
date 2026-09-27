@@ -1,11 +1,8 @@
 #![allow(clippy::unwrap_used, clippy::expect_used, clippy::panic, clippy::unreachable)]
-//! 公开 API 烟雾：ErrorKind / time / Shutdown 表面。
+//! 公开 API 烟雾：ErrorKind / Shutdown 表面。
 use std::time::Duration;
 
-use kernel::{
-    BoxError, ComponentState, ErrorKind, MonotonicClock, ShutdownSignal, SystemMonotonicClock,
-    SystemWallClock, TimeError, UnixTimeNs, WallClock, XError, XResult,
-};
+use kernel::{BoxError, ComponentState, ErrorKind, ShutdownSignal, XError, XResult};
 
 #[test]
 fn test_public_api_basics() {
@@ -15,10 +12,6 @@ fn test_public_api_basics() {
     let _retry: Option<std::time::Duration> = err.retry_after();
     let _boxed: BoxError = Box::new(std::io::Error::other("oops"));
     let _result: XResult<()> = Err(err);
-
-    let clock = SystemWallClock::new();
-    let _ts: Result<UnixTimeNs, TimeError> = clock.now();
-    let _mono = SystemMonotonicClock::new().now();
 
     let _state: ComponentState = ComponentState::Created;
     let (_guard, _signal) = ShutdownSignal::new();
@@ -49,19 +42,6 @@ fn error_context_and_debug_are_observably_correct() {
     assert!(debug.contains("kind"), "debug={debug}");
     assert!(debug.contains("context"), "debug={debug}");
     assert!(debug.len() > 16, "debug={debug}");
-}
-
-#[test]
-fn clock_contract_system() {
-    let wall = SystemWallClock::new();
-    let mono = SystemMonotonicClock::new();
-    assert!(wall.now().unwrap().as_unix_nanos() > 0);
-    let a = mono.now();
-    let _sum: u64 = (0..1_000_000).sum();
-    let b = mono.now();
-    assert!(b >= a);
-    let t = UnixTimeNs::from_unix_nanos(10);
-    assert_eq!(t.checked_sub(Duration::from_nanos(3)).unwrap().as_unix_nanos(), 7);
 }
 
 #[test]

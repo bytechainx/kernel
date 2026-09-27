@@ -26,14 +26,6 @@
 //! use kernel::Component;
 //! ```
 //!
-//! 时间类型不提供 `Default`，避免用零值冒充有效时间：
-//!
-//! ```compile_fail
-//! use kernel::UnixTimeNs;
-//!
-//! let _ = UnixTimeNs::default();
-//! ```
-//!
 //! `ShutdownGuard` 不可克隆，唯一触发权不能被复制：
 //!
 //! ```compile_fail
@@ -44,13 +36,6 @@
 //! ```
 //!
 //! kernel 类型不实现 serde（wire 由协议层版本化）：
-//!
-//! ```compile_fail
-//! use kernel::UnixTimeNs;
-//!
-//! fn assert_serialize<T: serde::Serialize>() {}
-//! assert_serialize::<UnixTimeNs>();
-//! ```
 //!
 //! ```compile_fail
 //! use kernel::ErrorKind;
@@ -85,17 +70,12 @@
 //! let _: XError = String::from("x").into();
 //! ```
 //!
-//! 墙钟与单调钟是独立 trait：只实现 [`crate::WallClock`] 不得自动获得单调钟。
-//! Domain 不得依赖 [`crate::RuntimeClock`]（XH-TIME-MODEL-SPEC-001 §3.1）。
-//!
 //! 说明：doctest 仅链接生产依赖，不含 `serde`；上述 `compile_fail` 与
 //! `tests/api_compile.rs` 中 dev-dep 下的 `assert_not_impl_any!(…: serde::Serialize)`
 //! 互补——后者在存在 `serde` 特征时证明类型本身未实现 trait。
 
 use std::borrow::Cow;
 use std::fmt;
-
-use crate::time::TimeError;
 
 // ---------------------------------------------------------------------------
 // 公开类型别名
@@ -340,25 +320,6 @@ impl std::error::Error for XError {
 }
 
 // ---------------------------------------------------------------------------
-// TimeError → XError 映射
-// ---------------------------------------------------------------------------
-
-impl From<TimeError> for XError {
-    fn from(err: TimeError) -> Self {
-        let kind = match err {
-            TimeError::InvalidOrder { .. } => ErrorKind::Invalid,
-            TimeError::Overflow | TimeError::SystemTimeOutOfRange => ErrorKind::Unavailable,
-        };
-        Self {
-            kind,
-            context: Cow::Owned(err.to_string()),
-            retry_after: None,
-            source: Some(Box::new(err)),
-        }
-    }
-}
-
-// ---------------------------------------------------------------------------
 // 单元测试
 // ---------------------------------------------------------------------------
 
@@ -537,30 +498,5 @@ mod tests {
         assert!(!XError::cancelled("ca").is_bug());
         assert!(!XError::deadline_exceeded("d").is_bug());
         assert!(!XError::internal("int").is_bug());
-    }
-
-    // -- TimeError → XError ----------------------------------------------
-
-    #[test]
-    fn test_time_error_maps_clock_failures_to_unavailable() {
-        use crate::UnixTimeNs;
-        let overflow: XError = TimeError::Overflow.into();
-        let range: XError = TimeError::SystemTimeOutOfRange.into();
-        let order: XError = TimeError::InvalidOrder {
-            later: UnixTimeNs::UNIX_EPOCH,
-            earlier: UnixTimeNs::from_unix_nanos(1),
-        }
-        .into();
-        assert_eq!(overflow.kind(), ErrorKind::Unavailable);
-        assert_eq!(range.kind(), ErrorKind::Unavailable);
-        assert_eq!(order.kind(), ErrorKind::Invalid);
-        for e in [&overflow, &range, &order] {
-            assert!(!e.is_retryable());
-            assert!(!e.is_bug());
-            assert!(Error::source(e).is_some());
-            assert!(!e.to_string().is_empty());
-        }
-        assert!(overflow.to_string().starts_with("Unavailable:"));
-        assert!(order.to_string().starts_with("Invalid:"));
     }
 }

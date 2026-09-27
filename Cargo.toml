@@ -1,9 +1,9 @@
 [package]
 name = "kernel"
-version = "0.4.3"
+version = "0.5.0"
 edition = "2024"
 rust-version = "1.88"
-description = "时间、生命周期与错误处理的 L0 kernel 值对象"
+description = "生命周期与错误处理的 L0 kernel 值对象"
 license = "MIT"
 repository = "https://github.com/bytechainx/kernel"
 homepage = "https://github.com/bytechainx/kernel"

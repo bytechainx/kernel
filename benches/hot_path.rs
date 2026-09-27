@@ -1,9 +1,9 @@
 #![allow(clippy::unwrap_used, clippy::expect_used, clippy::panic, clippy::unreachable)]
-//! kernel 热路径基准：墙钟读取 + UnixTimeNs 运算。
+//! kernel 热路径基准：错误分类查询与关停信号观察。
 use std::hint::black_box;
-use std::time::{Duration, Instant};
+use std::time::Instant;
 
-use kernel::{MonotonicClock, SystemMonotonicClock, SystemWallClock, UnixTimeNs, WallClock};
+use kernel::{ShutdownSignal, XError};
 
 fn iters() -> u32 {
     if std::env::args().any(|a| a == "--quick") { 2_000 } else { 200_000 }
@@ -11,25 +11,24 @@ fn iters() -> u32 {
 
 fn main() {
     let n = iters();
-    let wall = SystemWallClock::new();
-    let mono = SystemMonotonicClock::new();
+    let error = XError::transient("重试提示");
+    let (guard, signal) = ShutdownSignal::new();
+    guard.trigger();
     for _ in 0..n.min(50) {
-        let _ = black_box(wall.now());
+        black_box(black_box(&signal).is_triggered());
     }
     let start = Instant::now();
-    let mut acc = 0i64;
-    for i in 0..n {
-        let ts = wall.now().expect("now");
-        let t = UnixTimeNs::from_unix_nanos(ts.as_unix_nanos().wrapping_add(i as i64));
-        acc = acc.wrapping_add(
-            t.checked_add(Duration::from_nanos(1)).map(|x| x.as_unix_nanos()).unwrap_or(0),
-        );
-        black_box(mono.now());
+    let mut observed = 0u32;
+    for _ in 0..n {
+        if black_box(&error).is_retryable() && black_box(&signal).is_triggered() {
+            observed += 1;
+        }
     }
     let elapsed = start.elapsed();
+    assert_eq!(observed, n);
     println!(
-        "bench_kernel_clock: iters={n} total={elapsed:?} per_iter={:?} acc={}",
+        "bench_kernel_lifecycle: iters={n} total={elapsed:?} per_iter={:?} observed={}",
         elapsed / n,
-        black_box(acc)
+        black_box(observed)
     );
 }
