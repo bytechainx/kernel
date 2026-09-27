@@ -29,7 +29,7 @@ fn assert_scope() {
 #[test]
 fn assert_compatibility() {
     assert!(STANDARD.contains("## 兼容要求"));
-    assert!(STANDARD.contains("UnixTimeNs"));
+    assert!(STANDARD.contains("关停信号只能触发一次"));
     assert!(kernel::ComponentState::Created.can_transition_to(kernel::ComponentState::Starting));
     assert!(!kernel::ComponentState::Stopped.can_transition_to(kernel::ComponentState::Running));
 }
