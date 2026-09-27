@@ -57,6 +57,7 @@ cargo run -p kernel --example kernel_basic
 | --- | --- |
 | `UnixTimeNs`、`TimeError`、时钟 trait 与系统实现 | 使用 `temporal` 对应类型；负 epoch 在平台可表示时支持，`SystemTime` 转换严格拒绝平台精度损失，不再一律拒绝负值。 |
 | 通用 `time_storage` 换算、精度策略与能力 | 使用 `temporal` 的精度 API；返回本地 `PrecisionError`，增加显式向下取整策略。 |
+| 旧错误变体与能力辅助方法 | `TimeError::InvalidOrder { later, earlier }` 改为单元变体 `TimeError::InvalidOrder`，须修改构造和模式匹配；`temporal` 不提供旧 `TimeStorageCapabilities::new` 与 `TimePrecision::is_lossless_unix_ns`，保留这些调用将无法编译，须按新精度 API 改写。 |
 | `From<TimeError> for XError` | 消费方用 `map_err` 明确分类，可用 `XError::with_source` 保留来源；不得期待隐式 `?` 转换。 |
 | `verify_pg_dual_column` | PostgreSQL 适配器负责调用通用 `temporal::verify_projection`，严格核对声明的投影策略；本函数不迁入 `temporal`。 |
 
