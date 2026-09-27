@@ -1,6 +1,6 @@
 # 项目上下文
 
-`kernel` 是 bytechainx 的 L0 值对象 crate，当前版本 `0.4.2`。
+`kernel` 是 bytechainx 的 L0 值对象 crate，当前版本 `0.4.3`。
 
 - 语义权威：[`docs/标准.md`](docs/标准.md)。
 - 公开 API：[`docs/API.md`](docs/API.md)。
