@@ -4,7 +4,7 @@
 
 | 项目 | 值 |
 | --- | --- |
-| 版本 | `0.4.2` |
+| 版本 | `0.4.3` |
 | Rust | Edition 2024，MSRV 1.88 |
 | 许可 | MIT |
 | 发布 | 仅从 Git 源码消费，不发布到 crates.io |
@@ -28,7 +28,7 @@ git clone git@github.com:bytechainx/kernel.git
 
 ```toml
 [dependencies]
-kernel = { version = "0.4.2", path = "../kernel" }
+kernel = { version = "0.4.3", path = "../kernel" }
 ```
 
 ## 能力范围
