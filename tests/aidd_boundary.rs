@@ -2,10 +2,10 @@
 //! `kernel` 的 AI 生成边界候选；逐条人工复核后保留。
 //!
 //! // AIDD: 零时长等待未触发信号 | 来源=AI | 复核=ZoneCNH/2026-09-24 | 依据=标准.md §范围，超时等待不应误报触发 | 结论=保留
-//! // AIDD: 零退避的瞬时错误仍可重试 | 来源=AI | 复核= | 依据=标准.md §兼容要求及 ErrorKind::Transient 文档，retry_after 仅为提示 | 结论=待复核
-//! // AIDD: 内部错误不可自动重试 | 来源=AI | 复核= | 依据=标准.md §范围，错误分类由调用方反应决定 | 结论=待复核
-//! // AIDD: 已停止状态拒绝自转换 | 来源=AI | 复核= | 依据=ComponentState 文档合法转换表，Stopped → Stopped 不在其中 | 结论=待复核
-//! // AIDD: 已触发信号优先于不可表示的等待时长 | 来源=AI | 复核= | 依据=ShutdownSignal::wait_timeout 文档，已触发时在构造 deadline 前返回 | 结论=待复核
+//! // AIDD: 零退避的瞬时错误仍可重试 | 来源=AI | 复核=黄博/2026-09-27 | 依据=标准.md §兼容要求及 ErrorKind::Transient 文档，retry_after 仅为提示 | 结论=保留
+//! // AIDD: 内部错误不可自动重试 | 来源=AI | 复核=黄博/2026-09-27 | 依据=标准.md §范围，错误分类由调用方反应决定 | 结论=保留
+//! // AIDD: 已停止状态拒绝自转换 | 来源=AI | 复核=黄博/2026-09-27 | 依据=ComponentState 文档合法转换表，Stopped → Stopped 不在其中 | 结论=保留
+//! // AIDD: 已触发信号优先于不可表示的等待时长 | 来源=AI | 复核=黄博/2026-09-27 | 依据=ShutdownSignal::wait_timeout 文档，已触发时在构造 deadline 前返回 | 结论=保留
 
 use std::time::Duration;
 
