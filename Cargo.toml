@@ -1,6 +1,6 @@
 [package]
 name = "kernel"
-version = "0.4.2"
+version = "0.4.3"
 edition = "2024"
 rust-version = "1.88"
 description = "时间、生命周期与错误处理的 L0 kernel 值对象"
@@ -45,5 +45,5 @@ unimplemented = "deny"
 [package.metadata.bytechainx]
 module_id = "kernel"
 owner = "bytechainx"
-role = "core"
+role = "kernel"
 semantic_contract = "docs/标准.md"
