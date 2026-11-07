@@ -1,0 +1,43 @@
+{
+  "schema_version": 1,
+  "bench": "hot_path",
+  "command": "cargo bench --bench hot_path -- --quick",
+  "runs": 5,
+  "environment": {
+    "os": "linux 7.0.0-38-generic",
+    "arch": "x64",
+    "cpu": "Intel(R) Xeon(R) W-10885M CPU @ 2.40GHz",
+    "cores": 16
+  },
+  "samples": [
+    {
+      "raw": "35.704µs",
+      "ns": 35704
+    },
+    {
+      "raw": "34.63µs",
+      "ns": 34630
+    },
+    {
+      "raw": "33.903µs",
+      "ns": 33903
+    },
+    {
+      "raw": "32.537µs",
+      "ns": 32537
+    },
+    {
+      "raw": "34.57µs",
+      "ns": 34570
+    }
+  ],
+  "stats_ns": {
+    "min": 32537,
+    "median": 34570,
+    "max": 35704,
+    "mean": 34268.8,
+    "coefficient_of_variation": 0.0304
+  },
+  "noise_tolerance": "观察阈值取中位数 × 1.5；仅当变异系数 < 0.2 且连续多轮稳定时才考虑升级为阻塞 Gate",
+  "threshold_policy": "本轮不阻塞 PR；单次数字不作为回归结论"
+}

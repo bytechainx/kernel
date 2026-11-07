@@ -1,0 +1,67 @@
+name: Production Readiness
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+env:
+  CARGO_TERM_COLOR: always
+
+jobs:
+  msrv:
+    name: msrv rust 1.88
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: 安装 Rust 1.88
+        uses: dtolnay/rust-toolchain@master
+        with:
+          toolchain: 1.88.0
+
+      - uses: Swatinem/rust-cache@v2
+
+      - name: cargo test（MSRV）
+        run: cargo test
+
+  api-and-consumer:
+    name: api baseline and consumer
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: dtolnay/rust-toolchain@stable
+
+      - uses: Swatinem/rust-cache@v2
+
+      - name: 公开 API 基线
+        run: node scripts/check-api-baseline.mjs
+
+      - name: 公开 API 编译合同
+        run: cargo test --test public_api_surface
+
+      - name: 独立消费者 fixture
+        run: cargo run --manifest-path fixtures/consumer/Cargo.toml
+
+  supply-evidence-bench:
+    name: supply chain, evidence and bench
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: dtolnay/rust-toolchain@stable
+
+      - uses: Swatinem/rust-cache@v2
+
+      - name: 依赖清单
+        run: cargo tree --depth 1
+
+      - name: 许可证策略
+        run: node scripts/check-licenses.mjs
+
+      - name: Evidence Gate
+        run: node scripts/check-evidence.mjs
+
+      - name: 基准采样（观察项）
+        run: node scripts/bench-baseline.mjs 3

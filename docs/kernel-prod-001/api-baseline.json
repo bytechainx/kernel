@@ -1,0 +1,22 @@
+{
+  "schema_version": 1,
+  "crate": "kernel",
+  "version": "0.5.0",
+  "baseline_commit": "2b4e8422e82914562355f1912a0c4d26089c252f",
+  "modules": [
+    "error",
+    "lifecycle"
+  ],
+  "root_reexports": [
+    "BoxError",
+    "ErrorKind",
+    "XError",
+    "XResult",
+    "ComponentState",
+    "LifecycleError",
+    "ShutdownGuard",
+    "ShutdownSignal",
+    "WaitTimeoutError"
+  ],
+  "scope_note": "只固化 src/lib.rs 的模块路径与根导出；公开方法、#[non_exhaustive] 与枚举成员由 tests/public_api_surface.rs 编译驱动，变更时同步 docs/API.md。"
+}
