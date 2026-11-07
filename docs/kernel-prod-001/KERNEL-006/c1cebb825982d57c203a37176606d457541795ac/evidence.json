@@ -49,9 +49,33 @@
     }
   ],
   "regression_duration_seconds": 12,
-  "result": "PASS_LOCAL",
+  "result": "PASS",
+  "result_note": "本地四条回归与 PR #7 的两个 CI check 全部通过；PASS 指 Gate 通过，不代表 Owner 已批准或已合入。",
   "timestamp_utc": "2026-11-07T00:44:21Z",
-  "ci_run_url": null,
+  "ci_run_url": "https://github.com/bytechainx/kernel/actions/runs/42320761596",
+  "ci": {
+    "pull_request": 7,
+    "run_id": 42320761596,
+    "head_sha": "880cd1fe90607f88544800b33e61be2689efb4e4",
+    "head_sha_note": "CI run 的 head_sha 为含证据目录的提交，本地测试绑定实现提交 c1cebb8；两者 ci.yml 内容相同。",
+    "conclusion": "success",
+    "checks": [
+      {
+        "name": "fmt / clippy / test",
+        "conclusion": "success",
+        "duration": "1m0s"
+      },
+      {
+        "name": "loom concurrency verification",
+        "conclusion": "success",
+        "duration": "29s"
+      }
+    ],
+    "required_status_checks": [
+      "fmt / clippy / test",
+      "loom concurrency verification"
+    ]
+  },
   "evidence_files": [
     "evidence.json",
     "test-output.txt",
@@ -60,8 +84,10 @@
   ],
   "archive_note": "证据归档在 docs/kernel-prod-001/，日志用 .txt 后缀：pre-commit 钩子把 evidence 判为独立 crate 目录、把 .log 判为产物路径；文件内容未改。",
   "unresolved": [
-    "CI Run URL 待 PR 触发 GitHub Actions 后回填",
-    "Required Status Checks 待 loom check 产生后配置",
-    "Owner 审查与合入由人工执行，本地证据不代替批准"
+    "Owner 审查与合入由人工执行，本地及 CI 证据不代替批准（PR #7 当前 REVIEW_REQUIRED）"
+  ],
+  "known_limits": [
+    "wait_timeout 与 WaitTimeoutError::DeadlineOverflow 不在 Loom 覆盖内，见 review.md 第 1 节",
+    "Rust 1.88 MSRV 属 KERNEL-007，本轮未验证"
   ]
 }
