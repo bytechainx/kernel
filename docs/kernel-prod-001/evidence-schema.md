@@ -3,10 +3,13 @@
 ## 路径
 
 ```text
-docs/kernel-prod-001/<GOAL>/<TASK>/<commit-sha>/
+docs/kernel-prod-001/<TASK>/<commit-sha>/            # 单任务，例如 KERNEL-006
   evidence.json
   <日志>.txt
   review.md
+
+docs/kernel-prod-001/<GOAL>/<commit-sha>/            # 汇总，例如 KERNEL-PROD-001
+  evidence.json
 ```
 
 pre-commit 钩子把 `evidence` 当作独立 crate 目录、把 `.log` 当作产物路径，故首段用 `docs/kernel-prod-001`，日志后缀用 `.txt`；不得用 `--no-verify` 绕过。

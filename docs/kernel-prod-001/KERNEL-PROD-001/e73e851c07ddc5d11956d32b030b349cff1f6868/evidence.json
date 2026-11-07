@@ -1,0 +1,183 @@
+{
+  "goal_id": "KERNEL-PROD-001",
+  "task_id": "KERNEL-PROD-001-SUMMARY",
+  "repository": "bytechainx/kernel",
+  "branch": "feature/kernel-prod-001-readiness",
+  "commit_sha": "e73e851c07ddc5d11956d32b030b349cff1f6868",
+  "toolchain": {
+    "rustc": "rustc 1.99.0 (b940084d7 2026-09-28)",
+    "cargo": "cargo 1.99.0 (5f94df478 2026-08-27)",
+    "msrv_rustc": "rustc 1.88.0 (6b00bc388 2025-06-23)",
+    "msrv_cargo": "cargo 1.88.0 (873a06493 2025-05-10)"
+  },
+  "runner": {
+    "local": "Linux，隔离 worktree .worktrees/kernel/feature-kernel-prod-001-readiness",
+    "ci": "GitHub Actions ubuntu-latest（production-readiness.yml）"
+  },
+  "checks": [
+    {
+      "name": "cargo fmt --check",
+      "command": "cargo fmt --check",
+      "exit_code": 0
+    },
+    {
+      "name": "cargo clippy --all-targets -- -D warnings",
+      "command": "cargo clippy --all-targets -- -D warnings",
+      "exit_code": 0
+    },
+    {
+      "name": "cargo test",
+      "command": "cargo test",
+      "exit_code": 0,
+      "tests": {
+        "total": 74,
+        "passed": 74,
+        "failed": 0
+      }
+    },
+    {
+      "name": "cargo +1.88.0 test",
+      "command": "cargo +1.88.0 test",
+      "exit_code": 0,
+      "tests": {
+        "total": 74,
+        "passed": 74,
+        "failed": 0
+      },
+      "duration_seconds": 8
+    },
+    {
+      "name": "cargo package --no-verify",
+      "command": "cargo package --no-verify",
+      "exit_code": 0,
+      "note": "提交后工作树干净重跑，Packaged 36 files"
+    },
+    {
+      "name": "node scripts/check-api-baseline.mjs",
+      "command": "node scripts/check-api-baseline.mjs",
+      "exit_code": 0,
+      "note": "2 模块 / 9 根导出；负向注入假符号时退出码 1"
+    },
+    {
+      "name": "node scripts/check-evidence.mjs",
+      "command": "node scripts/check-evidence.mjs",
+      "exit_code": 0
+    },
+    {
+      "name": "node scripts/check-licenses.mjs",
+      "command": "node scripts/check-licenses.mjs",
+      "exit_code": 0,
+      "note": "76 个依赖；SPDX OR 按任选其一判定"
+    },
+    {
+      "name": "cargo run --manifest-path fixtures/consumer/Cargo.toml",
+      "command": "cargo run --manifest-path fixtures/consumer/Cargo.toml",
+      "exit_code": 0,
+      "note": "独立消费者输出 kernel-consumer-fixture: ok"
+    },
+    {
+      "name": "node scripts/bench-baseline.mjs 5",
+      "command": "node scripts/bench-baseline.mjs 5",
+      "exit_code": 0,
+      "note": "5 次采样，median 34570ns，cv 0.0304"
+    },
+    {
+      "name": "cargo audit",
+      "command": "cargo audit",
+      "exit_code": 0,
+      "note": "1422 条公告 / 77 个依赖，无漏洞输出"
+    }
+  ],
+  "task_results": [
+    {
+      "task_id": "KERNEL-001",
+      "status": "DONE",
+      "evidence_ref": "BASELINE.md",
+      "note": "基线报告绑定 2b4e842"
+    },
+    {
+      "task_id": "KERNEL-002",
+      "status": "DONE",
+      "evidence_ref": "api-baseline.json / docs/API.md",
+      "note": "0.x 兼容政策与机器可读基线"
+    },
+    {
+      "task_id": "KERNEL-003",
+      "status": "DONE_BY_EXISTING",
+      "evidence_ref": "tests/tdd_contracts.rs 等",
+      "note": "按等价载体核对，不重造"
+    },
+    {
+      "task_id": "KERNEL-004",
+      "status": "DONE_BY_EXISTING",
+      "evidence_ref": "tests/contracts.rs 等",
+      "note": "按等价载体核对，不重造"
+    },
+    {
+      "task_id": "KERNEL-005",
+      "status": "DONE_BY_EXISTING",
+      "evidence_ref": "tests/lifecycle_concurrency.rs / Loom 模型",
+      "note": "按等价载体核对，不重造"
+    },
+    {
+      "task_id": "KERNEL-007",
+      "status": "DONE",
+      "evidence_ref": ".omc msrv 日志 / production-readiness.yml",
+      "note": "Rust 1.88 实测 cargo test 通过"
+    },
+    {
+      "task_id": "KERNEL-008",
+      "status": "DONE",
+      "evidence_ref": "scripts/check-api-baseline.mjs",
+      "note": "基线比对 + 编译合同"
+    },
+    {
+      "task_id": "KERNEL-009",
+      "status": "DONE",
+      "evidence_ref": "fixtures/consumer/",
+      "note": "独立 crate 编译运行通过"
+    },
+    {
+      "task_id": "KERNEL-010",
+      "status": "DONE_WITH_OBSERVATION",
+      "evidence_ref": "SUPPLY-CHAIN.md / dependency-inventory.txt",
+      "note": "策略、许可证检查、本机 cargo audit；CI 未装 cargo-audit"
+    },
+    {
+      "task_id": "KERNEL-011",
+      "status": "DONE_WITH_OBSERVATION",
+      "evidence_ref": "bench-baseline.json",
+      "note": "多次采样与统计；阈值只作观察"
+    },
+    {
+      "task_id": "KERNEL-012",
+      "status": "DONE",
+      "evidence_ref": "evidence-schema.md / scripts/check-evidence.mjs",
+      "note": "格式规范与 Gate 检查器"
+    },
+    {
+      "task_id": "KERNEL-013",
+      "status": "PENDING_OWNER",
+      "evidence_ref": "RELEASE-DECISION.md",
+      "note": "待 Owner 批准，不发布"
+    }
+  ],
+  "result": "PASS_LOCAL",
+  "result_note": "本地 11 项命令全部退出码 0；PASS_LOCAL 只表示本地验证通过，不代表 CI 已验证或 Owner 已批准。",
+  "timestamp_utc": "2026-11-07T01:13:20.301Z",
+  "timestamp_source": "verification.log 的修改时间（全量验证完成时刻）",
+  "ci_run_url": null,
+  "ci_note": "CI Run URL 见本轮 PR 描述；不回填仓库文件，避免每次回填触发新的 CI Run。KERNEL-006 的 evidence.json 已含真实 CI Run URL。",
+  "unresolved": [
+    "Owner 书面批准缺失（KERNEL-013），不得声明生产就绪",
+    "PR #7 与本轮 PR 均未合入 main",
+    "production-readiness.yml 的 3 个 Job 未加入 main 的 Required Checks（避免卡住没有该 workflow 的 PR #7）",
+    "安全公告检查未升级为 CI Gate（CI runner 未预装 cargo-audit）",
+    "性能阈值只作观察项，未升级为阻塞 Gate"
+  ],
+  "known_limits": [
+    "wait_timeout 与 DeadlineOverflow 不在 Loom 覆盖内（loom Condvar 无 wait_timeout）",
+    "MSRV 1.88 只实测 cargo test，未跑该工具链下的 fmt/clippy",
+    "publish = false 保持，本轮不执行 cargo publish"
+  ]
+}
