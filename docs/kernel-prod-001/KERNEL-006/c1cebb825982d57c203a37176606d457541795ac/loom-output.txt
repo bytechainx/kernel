@@ -1,0 +1,12 @@
+### RUSTFLAGS="--cfg loom" cargo test --test lifecycle_concurrency_loom --release
+    Finished `release` profile [optimized] target(s) in 0.04s
+     Running tests/lifecycle_concurrency_loom.rs (/home/workspace/bytechainx/.cargo/wt/kernel/release/deps/lifecycle_concurrency_loom-c4cdae1c92a4bd90)
+
+running 3 tests
+test loom_trigger_before_wait_observer_sees_flag ... ok
+test loom_trigger_wakes_waiter ... ok
+test loom_two_waiters ... ok
+
+test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 1.59s
+
+exit_code=0

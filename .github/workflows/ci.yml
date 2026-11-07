@@ -30,3 +30,20 @@ jobs:
 
       - name: cargo test
         run: cargo test
+
+  loom:
+    name: loom concurrency verification
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: 安装 Rust 工具链
+        uses: dtolnay/rust-toolchain@stable
+
+      - uses: Swatinem/rust-cache@v2
+
+      - name: 运行 Loom 并发模型
+        run: |
+          set -euo pipefail
+          RUSTFLAGS="--cfg loom" cargo test --test lifecycle_concurrency_loom --release 2>&1 | tee loom.log
+          grep -Eq 'test result: ok\. [1-9][0-9]* passed; 0 failed' loom.log

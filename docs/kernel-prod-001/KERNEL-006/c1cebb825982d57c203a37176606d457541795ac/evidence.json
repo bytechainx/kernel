@@ -1,0 +1,93 @@
+{
+  "goal_id": "KERNEL-PROD-001",
+  "issue_id": 6,
+  "task_id": "KERNEL-006",
+  "repository": "bytechainx/kernel",
+  "branch": "issue/6-kernel-006-loom-ci",
+  "commit_sha": "c1cebb825982d57c203a37176606d457541795ac",
+  "toolchain": {
+    "rustc": "rustc 1.99.0 (b940084d7 2026-09-28)",
+    "cargo": "cargo 1.99.0 (5f94df478 2026-08-27)"
+  },
+  "runner": {
+    "local": "Linux，隔离 worktree .worktrees/kernel/issue-6-kernel-006-loom-ci",
+    "ci": "GitHub Actions ubuntu-latest"
+  },
+  "checks": [
+    {
+      "name": "cargo fmt --check",
+      "command": "cargo fmt --check",
+      "exit_code": 0
+    },
+    {
+      "name": "cargo clippy --all-targets -- -D warnings",
+      "command": "cargo clippy --all-targets -- -D warnings",
+      "exit_code": 0
+    },
+    {
+      "name": "cargo test",
+      "command": "cargo test",
+      "exit_code": 0,
+      "tests": {
+        "total": 74,
+        "passed": 74,
+        "failed": 0
+      },
+      "note": "默认路径下 tests/lifecycle_concurrency_loom.rs 为 running 0 tests，见 test-output.txt"
+    },
+    {
+      "name": "loom",
+      "command": "RUSTFLAGS=\"--cfg loom\" cargo test --test lifecycle_concurrency_loom --release",
+      "exit_code": 0,
+      "tests": {
+        "total": 3,
+        "passed": 3,
+        "failed": 0
+      },
+      "duration_seconds": 1.59,
+      "duration_source": "test result: ... finished in 1.59s，见 loom-output.txt"
+    }
+  ],
+  "regression_duration_seconds": 12,
+  "result": "PASS",
+  "result_note": "本地四条回归与 PR #7 的两个 CI check 全部通过；PASS 指 Gate 通过，不代表 Owner 已批准或已合入。",
+  "timestamp_utc": "2026-11-07T00:44:21Z",
+  "ci_run_url": "https://github.com/bytechainx/kernel/actions/runs/42320761596",
+  "ci": {
+    "pull_request": 7,
+    "run_id": 42320761596,
+    "head_sha": "880cd1fe90607f88544800b33e61be2689efb4e4",
+    "head_sha_note": "CI run 的 head_sha 为含证据目录的提交，本地测试绑定实现提交 c1cebb8；两者 ci.yml 内容相同。",
+    "conclusion": "success",
+    "checks": [
+      {
+        "name": "fmt / clippy / test",
+        "conclusion": "success",
+        "duration": "1m0s"
+      },
+      {
+        "name": "loom concurrency verification",
+        "conclusion": "success",
+        "duration": "29s"
+      }
+    ],
+    "required_status_checks": [
+      "fmt / clippy / test",
+      "loom concurrency verification"
+    ]
+  },
+  "evidence_files": [
+    "evidence.json",
+    "test-output.txt",
+    "loom-output.txt",
+    "review.md"
+  ],
+  "archive_note": "证据归档在 docs/kernel-prod-001/，日志用 .txt 后缀：pre-commit 钩子把 evidence 判为独立 crate 目录、把 .log 判为产物路径；文件内容未改。",
+  "unresolved": [
+    "Owner 审查与合入由人工执行，本地及 CI 证据不代替批准（PR #7 当前 REVIEW_REQUIRED）"
+  ],
+  "known_limits": [
+    "wait_timeout 与 WaitTimeoutError::DeadlineOverflow 不在 Loom 覆盖内，见 review.md 第 1 节",
+    "Rust 1.88 MSRV 属 KERNEL-007，本轮未验证"
+  ]
+}
