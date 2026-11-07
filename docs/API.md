@@ -49,6 +49,14 @@ cargo run -p kernel --example kernel_basic
 集成测试 `tests/public_api_surface.rs` 驱动上述全部根 re-export 构造器/方法并断言返回值。  
 公开 API 的行为与源码保持一致；新增或变更公开项时更新本 crate 的文档与测试。
 
+## 0.x 兼容政策
+
+- 当前版本线为 `0.x`：次版本升级（如 `0.5.0 → 0.6.0`）允许破坏性变化，但必须在 `CHANGELOG.md` 写明破坏项、影响范围与迁移入口，并经 Owner 审查批准；补丁版本不引入公开面破坏。
+- 机器可读基线为 [`kernel-prod-001/api-baseline.json`](kernel-prod-001/api-baseline.json)。PR 由 `scripts/check-api-baseline.mjs` 比对 `src/lib.rs` 的模块路径与根导出，并由 `tests/public_api_surface.rs` 编译驱动全部根 re-export 构造器与方法。
+- 变更 `#[non_exhaustive]`、公开 trait、公开字段、`ErrorKind` 变体或枚举成员时，须同步更新本文件与基线，并写明迁移路径；基线更新本身须经 PR 审查，不允许跳过检查。
+- 工具或基线误报时，先由审查者确认为误报，在 PR 描述记录理由与有效期，再更新基线；不得删除断言或关闭检查。
+- `publish = false`，本仓不执行 `cargo publish`；以上政策只约束 Git 依赖消费者。
+
 ## 时间公开面迁移
 
 0.5.0 删除 `kernel::time`、`kernel::time_storage`、全部对应根导出，以及 `From<TimeError> for XError`。直接使用独立 [temporal 0.1.0](https://github.com/bytechainx/temporal) 的消费者应固定经审查的完整 Git commit 并提交自己的锁文件；本 crate 不添加对 `temporal` 的依赖。

@@ -1,0 +1,6 @@
+kernel v0.5.0 (/home/workspace/bytechainx/.worktrees/kernel/feature-kernel-prod-001-readiness)
+└── thiserror v2.0.21
+[dev-dependencies]
+├── proptest v1.12.0
+├── serde v1.0.229
+└── static_assertions v1.1.0
