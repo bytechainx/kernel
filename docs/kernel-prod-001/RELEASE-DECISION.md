@@ -24,6 +24,8 @@
 | 安全公告检查升级为 CI Gate | 未升级 | 本机 `cargo audit` 可重复执行，CI 未安装该工具 |
 | 性能回归阈值升级为阻塞 Gate | 未升级 | 采样波动未证明稳定，按计划只作观察 |
 
+残余项的评估依据与升级触发条件见 [`RESIDUAL-ITEMS.md`](RESIDUAL-ITEMS.md)；本表状态为「未升级」的项是有依据的裁决，不是遗漏。
+
 ## 一致性核对
 
 - `Cargo.toml` `0.5.0`、`README.md` 版本表、`CHANGELOG.md [0.5.0]`、`docs/API.md` 一致；本轮未改版本、公开 API 或对外行为。
