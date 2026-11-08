@@ -44,7 +44,7 @@
 
 - CI 每次 Run 把 `bench-baseline.json` 写进 checkout 后丢弃，不归档为 artifact。跨环境读数只能从 Job 日志取。按环境归档基线需要先增加 artifact 上传，属于新增 CI 复杂度，本文不实施。
 - CI 每环境 3 次采样，本机 5 次，采样次数口径不一致。提高 CI 采样次数直接增加 CI 分钟数，本轮不改。
-- `--quick` 的 criterion 内部样本数由 criterion 决定，本文不改基准配置。
+- `benches/hot_path.rs` 是手写基准（`Instant` 计时），不是 criterion：`--quick` 为其自定义开关，每次执行 2,000 次迭代（默认 200,000）；批次样本统计由 `bench-baseline.mjs` 完成。本文不改基准配置。
 - 本文 CI 读数来自 Job 日志文本匹配（`bench baseline: N 次，median=<值>ns，cv=<值>`），不是归档文件；日志保留期外需重跑取得。
 
 ## 引用
