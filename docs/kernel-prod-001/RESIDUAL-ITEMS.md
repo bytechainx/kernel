@@ -3,6 +3,7 @@
 - 绑定提交：`b197591ab88237353f8b26c01aa77f6f1d5fd860`（`main`）
 - 日期：2026-11-07
 - 状态：裁决记录。本文不新增 Gate、不改 CI、不改元仓台账；每项给出「维持现状」的规则依据与未来升级的触发条件。
+- 复验（2026-11-08，绑定 `a48e4e1a8b73dd55ae5b3e249a10e1ee9e8bfb07`）：残余项「跨环境基准复现」已执行，读数与判定见 [`BENCH-CROSS-ENV.md`](./BENCH-CROSS-ENV.md)。本文各项裁决不变。
 - 背景：13 项任务已全部合入 `main`，Owner 已批准（`RELEASE-DECISION.md`），5 个 Required Checks 生效，合并后 main CI 全绿；Milestone #1 与全部 Issue 已关闭。
 
 ## 依据
@@ -21,8 +22,8 @@
 | 残余项 | 裁决 | 规则依据 | 升级触发条件 |
 | --- | --- | --- | --- |
 | `cargo-audit` 进 CI | 维持观察项 | `SUPPLY-CHAIN.md` 已定策略；计划 §8.2 / §12 要求「至关重要／反复出现」才升级；本机 `cargo audit` 已实测 rc=0（1422 公告 / 77 依赖） | 连续两个迭代周期出现高危公告且本机命令遗漏，或仓库统一工具链在 runner 预装 `cargo-audit` |
-| 性能阈值升级为阻塞 Gate | 维持观察项 | 计划 §11：只有稳定、可复现且噪声不误报才用于阻塞；当前仅单机 5 次采样（median 34570ns、cv 0.0304），跨环境未验证 | ≥3 个不同环境／工具链各 5 次采样，变异系数 < 0.2 且阈值误报率有记录 |
-| 跨环境基准复现 | 未执行 | 本机只有一台机器，无法构成跨环境样本 | 有第二台可用 runner／环境时按 `bench-baseline.mjs` 采样并比较 |
+| 性能阈值升级为阻塞 Gate | 维持观察项 | 计划 §11：只有稳定、可复现且噪声不误报才用于阻塞。跨环境已复现（`BENCH-CROSS-ENV.md`）：6 个 hosted runner region 的 median 落在 8933–34157ns（3.82 倍），单次 Run 内变异系数最高 0.8413，已超 0.2 门槛 | ≥3 个不同环境／工具链各 5 次采样，变异系数 < 0.2 且阈值误报率有记录；且阈值基线按环境分别绑定 |
+| 跨环境基准复现 | 已执行（`BENCH-CROSS-ENV.md`） | 触发条件「有第二台可用 runner／环境」已满足：GitHub Actions hosted runner 6 次 Run（每环境 3 样本）+ 本机 2 批各 5 样本 | 已完成；判定转入上一行。若需按环境归档基线，须先给 CI 增加 artifact 上传 |
 | 真实 CI 失败注入 | 未执行 | 会污染 PR / `main` 历史；计划 §12 要求不为单次故障增加长期复杂度。本地已用模拟 `0 tests` / `FAILED` 输入验证 CI 断言返回非 0 | 在专用测试分支或临时仓库做，不污染 `main` 历史 |
 | 元仓 `validation/gate.md` 台账口径 | 维持现状 | 叶 `AGENTS.md` §2 规定新正文只进 `goal.md` / `specs/` / `adr/` / `context/`；`validation/` 属迁入战役层按历史读，且「不把 COMPLETE 写成 GO」。仓内 `RELEASE-DECISION.md` 已注明以 Owner 批准栏为准 | 由 Owner 发起元仓规范变更 PR，在允许路径（`context/`）新增批准记录；不得直接改写历史台账字段 |
 
@@ -35,4 +36,5 @@
 - `docs/kernel-prod-001/RELEASE-DECISION.md`（Owner 批准栏、残余项表）
 - `docs/kernel-prod-001/SUPPLY-CHAIN.md`（安全公告与阻塞策略）
 - `docs/kernel-prod-001/bench-baseline.json`（采样与环境）
+- `docs/kernel-prod-001/BENCH-CROSS-ENV.md`（跨环境基准复现读数与判定）
 - 元仓 `specs/repos/type/kernel/AGENTS.md` §2
