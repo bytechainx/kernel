@@ -25,6 +25,9 @@ jobs:
       - name: cargo test（MSRV）
         run: cargo test
 
+      - name: 消费者 fixture 编译（MSRV）
+        run: cargo build --manifest-path fixtures/consumer/Cargo.toml
+
   api-and-consumer:
     name: api baseline and consumer
     runs-on: ubuntu-latest
