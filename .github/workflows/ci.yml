@@ -47,3 +47,64 @@ jobs:
           set -euo pipefail
           RUSTFLAGS="--cfg loom" cargo test --test lifecycle_concurrency_loom --release 2>&1 | tee loom.log
           grep -Eq 'test result: ok\. [1-9][0-9]* passed; 0 failed' loom.log
+
+  coverage:
+    name: coverage report
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: 安装 Rust 工具链（含 llvm-tools）
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          components: llvm-tools-preview
+
+      - name: 安装 cargo-llvm-cov
+        uses: taiki-e/install-action@v2
+        with:
+          tool: cargo-llvm-cov
+
+      - uses: Swatinem/rust-cache@v2
+
+      - name: cargo llvm-cov report
+        run: cargo llvm-cov --all-targets
+
+  miri:
+    name: miri undefined behavior checks
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: 安装 nightly 工具链（含 miri）
+        uses: dtolnay/rust-toolchain@nightly
+        with:
+          components: miri
+
+      - uses: Swatinem/rust-cache@v2
+
+      - name: cargo miri setup
+        run: cargo miri setup
+
+      - name: cargo miri test
+        env:
+          MIRIFLAGS: "-Zmiri-disable-isolation"
+        run: cargo +nightly miri test
+
+  mutants:
+    name: mutation testing
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: 安装 Rust 工具链
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: 安装 cargo-mutants
+        uses: taiki-e/install-action@v2
+        with:
+          tool: cargo-mutants
+
+      - uses: Swatinem/rust-cache@v2
+
+      - name: cargo mutants
+        run: cargo mutants --timeout 300

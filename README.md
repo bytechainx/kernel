@@ -51,3 +51,9 @@ cargo fmt --check
 cargo clippy --all-targets -- -D warnings
 cargo test
 ```
+
+CI 另在 `ci.yml` 中运行三个补充门禁：
+
+- `coverage`：`cargo llvm-cov --all-targets`，仅出报告不设阈值；
+- `miri`：`cargo +nightly miri test`（`MIRIFLAGS=-Zmiri-disable-isolation`，proptest 需要文件系统访问）；
+- `mutants`：`cargo mutants --timeout 300`，存活变异体会使任务失败。
