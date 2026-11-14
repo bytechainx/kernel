@@ -56,4 +56,4 @@ CI 另在 `ci.yml` 中运行三个补充门禁：
 
 - `coverage`：`cargo llvm-cov --all-targets`，仅出报告不设阈值；
 - `miri`：`cargo +nightly miri test`（`MIRIFLAGS=-Zmiri-disable-isolation`，proptest 需要文件系统访问）；
-- `mutants`：`cargo mutants --timeout 300`，存活变异体会使任务失败。
+- `mutants`：`cargo mutants --timeout 300`，存活变异体会使任务失败；会让测试套件永久阻塞的两个变异体（`lifecycle.rs` 的 `wait`/`trigger`）在 CI 命令中用 `--exclude-re` 显式排除并注明理由。

@@ -571,4 +571,20 @@ mod tests {
         assert!(s2.wait_timeout(Duration::from_secs(2)).unwrap());
         h.join().unwrap();
     }
+
+    #[test]
+    fn wait_timeout_deadline_with_trigger_set_without_notify_returns_true() {
+        // 覆盖 `result.timed_out() && !*triggered` 分支：condvar 等待到 deadline
+        // 返回 timed_out()=true 时，若 triggered 已被置位（触发与超时竞态），
+        // 必须继续循环返回 Ok(true)，不得误报 Ok(false)。
+        // 直接写字段且不 notify，确定性命中 timed_out()=true 且 *triggered=true。
+        let (_guard, signal) = ShutdownSignal::new();
+        let waiter = {
+            let s = signal.clone();
+            thread::spawn(move || s.wait_timeout(Duration::from_secs(1)))
+        };
+        thread::sleep(Duration::from_millis(300));
+        *signal.inner.triggered.lock().unwrap_or_else(|e| e.into_inner()) = true;
+        assert_eq!(waiter.join().expect("waiter"), Ok(true));
+    }
 }

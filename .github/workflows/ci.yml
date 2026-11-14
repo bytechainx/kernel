@@ -106,5 +106,12 @@ jobs:
 
       - uses: Swatinem/rust-cache@v2
 
+      # 排除两个「套件永久阻塞」型变异体：lifecycle.rs:160 delete ! in wait
+      # 与 lifecycle.rs:224 replace trigger with ()。它们被应用后测试挂起，
+      # cargo-mutants 计为 timeout/失败；正常 cargo test / loom / CI 超时仍
+      # 会发现同类回归。仓库 hook 禁止入库 .cargo/ 目录，故排除项走 CLI。
       - name: cargo mutants
-        run: cargo mutants --timeout 300
+        run: >-
+          cargo mutants --timeout 300
+          --exclude-re 'src/lifecycle\.rs:160:'
+          --exclude-re 'src/lifecycle\.rs:224:'
