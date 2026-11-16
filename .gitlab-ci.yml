@@ -48,6 +48,9 @@ production-readiness:api:
   extends: .rust
   stage: test
   script:
+    - curl -fsSLO https://nodejs.org/dist/v22.23.5/node-v22.23.5-linux-x64.tar.xz
+    - tar -xJf node-v22.23.5-linux-x64.tar.xz -C /usr/local --strip-components=1
+    - rm -f node-v22.23.5-linux-x64.tar.xz
     - node scripts/check-api-baseline.mjs
     - cargo test --test public_api_surface
     - cargo run --manifest-path fixtures/consumer/Cargo.toml
@@ -58,6 +61,9 @@ production-readiness:supply:
   variables:
     GIT_DEPTH: "0"
   script:
+    - curl -fsSLO https://nodejs.org/dist/v22.23.5/node-v22.23.5-linux-x64.tar.xz
+    - tar -xJf node-v22.23.5-linux-x64.tar.xz -C /usr/local --strip-components=1
+    - rm -f node-v22.23.5-linux-x64.tar.xz
     - cargo tree --depth 1
     - node scripts/check-licenses.mjs
     - node scripts/check-evidence.mjs
