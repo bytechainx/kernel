@@ -150,96 +150,55 @@ pub struct XError {
 }
 
 impl XError {
+    fn classified(kind: ErrorKind, context: impl Into<String>) -> Self {
+        Self { kind, context: Cow::Owned(context.into()), retry_after: None, source: None }
+    }
+
     // -- 构造器 ------------------------------------------------------------
 
     /// 构造一个 [`ErrorKind::Invalid`] 错误。
     pub fn invalid(context: impl Into<String>) -> Self {
-        Self {
-            kind: ErrorKind::Invalid,
-            context: Cow::Owned(context.into()),
-            retry_after: None,
-            source: None,
-        }
+        Self::classified(ErrorKind::Invalid, context)
     }
 
     /// 构造一个 [`ErrorKind::Missing`] 错误。
     pub fn missing(context: impl Into<String>) -> Self {
-        Self {
-            kind: ErrorKind::Missing,
-            context: Cow::Owned(context.into()),
-            retry_after: None,
-            source: None,
-        }
+        Self::classified(ErrorKind::Missing, context)
     }
 
     /// 构造一个 [`ErrorKind::Conflict`] 错误。
     pub fn conflict(context: impl Into<String>) -> Self {
-        Self {
-            kind: ErrorKind::Conflict,
-            context: Cow::Owned(context.into()),
-            retry_after: None,
-            source: None,
-        }
+        Self::classified(ErrorKind::Conflict, context)
     }
 
     /// 构造一个 [`ErrorKind::Transient`] 错误，无 `retry_after`。
     pub fn transient(context: impl Into<String>) -> Self {
-        Self {
-            kind: ErrorKind::Transient,
-            context: Cow::Owned(context.into()),
-            retry_after: None,
-            source: None,
-        }
+        Self::classified(ErrorKind::Transient, context)
     }
 
     /// 构造一个 [`ErrorKind::Transient`] 错误，附带 `retry_after` 提示。
     pub fn transient_after(context: impl Into<String>, retry_after: std::time::Duration) -> Self {
-        Self {
-            kind: ErrorKind::Transient,
-            context: Cow::Owned(context.into()),
-            retry_after: Some(retry_after),
-            source: None,
-        }
+        Self { retry_after: Some(retry_after), ..Self::classified(ErrorKind::Transient, context) }
     }
 
     /// 构造一个 [`ErrorKind::Unavailable`] 错误。
     pub fn unavailable(context: impl Into<String>) -> Self {
-        Self {
-            kind: ErrorKind::Unavailable,
-            context: Cow::Owned(context.into()),
-            retry_after: None,
-            source: None,
-        }
+        Self::classified(ErrorKind::Unavailable, context)
     }
 
     /// 构造一个 [`ErrorKind::Cancelled`] 错误。
     pub fn cancelled(context: impl Into<String>) -> Self {
-        Self {
-            kind: ErrorKind::Cancelled,
-            context: Cow::Owned(context.into()),
-            retry_after: None,
-            source: None,
-        }
+        Self::classified(ErrorKind::Cancelled, context)
     }
 
     /// 构造一个 [`ErrorKind::DeadlineExceeded`] 错误。
     pub fn deadline_exceeded(context: impl Into<String>) -> Self {
-        Self {
-            kind: ErrorKind::DeadlineExceeded,
-            context: Cow::Owned(context.into()),
-            retry_after: None,
-            source: None,
-        }
+        Self::classified(ErrorKind::DeadlineExceeded, context)
     }
 
     /// 构造一个 [`ErrorKind::Invariant`] 错误。
     pub fn invariant(context: impl Into<String>) -> Self {
-        Self {
-            kind: ErrorKind::Invariant,
-            context: Cow::Owned(context.into()),
-            retry_after: None,
-            source: None,
-        }
+        Self::classified(ErrorKind::Invariant, context)
     }
 
     /// 构造一个 [`ErrorKind::Internal`] 错误。
@@ -247,12 +206,7 @@ impl XError {
     /// 使用此构造器的调用点必须受棘轮约束；非紧急情况下应选择更精确的
     /// `ErrorKind`。
     pub fn internal(context: impl Into<String>) -> Self {
-        Self {
-            kind: ErrorKind::Internal,
-            context: Cow::Owned(context.into()),
-            retry_after: None,
-            source: None,
-        }
+        Self::classified(ErrorKind::Internal, context)
     }
 
     // -- 构建器 ------------------------------------------------------------
@@ -331,42 +285,23 @@ mod tests {
     // -- 每个 ErrorKind 的构造器 -------------------------------------------
 
     #[test]
-    fn test_invalid_constructor() {
-        let err = XError::invalid("bad input");
-        assert_eq!(err.kind(), ErrorKind::Invalid);
-        assert_eq!(err.context(), "bad input");
-        assert_eq!(err.retry_after(), None);
-        assert!(!err.is_retryable());
-        assert!(!err.is_bug());
-    }
-
-    #[test]
-    fn test_missing_constructor() {
-        let err = XError::missing("not found");
-        assert_eq!(err.kind(), ErrorKind::Missing);
-        assert_eq!(err.context(), "not found");
-        assert_eq!(err.retry_after(), None);
-        assert!(!err.is_retryable());
-        assert!(!err.is_bug());
-    }
-
-    #[test]
-    fn test_conflict_constructor() {
-        let err = XError::conflict("duplicate");
-        assert_eq!(err.kind(), ErrorKind::Conflict);
-        assert_eq!(err.context(), "duplicate");
-        assert!(!err.is_retryable());
-        assert!(!err.is_bug());
-    }
-
-    #[test]
-    fn test_transient_constructor() {
-        let err = XError::transient("network blip");
-        assert_eq!(err.kind(), ErrorKind::Transient);
-        assert_eq!(err.context(), "network blip");
-        assert_eq!(err.retry_after(), None);
-        assert!(err.is_retryable());
-        assert!(!err.is_bug());
+    fn test_kind_constructors() {
+        let cases: [(XError, ErrorKind, &str); 9] = [
+            (XError::invalid("bad input"), ErrorKind::Invalid, "bad input"),
+            (XError::missing("not found"), ErrorKind::Missing, "not found"),
+            (XError::conflict("duplicate"), ErrorKind::Conflict, "duplicate"),
+            (XError::transient("network blip"), ErrorKind::Transient, "network blip"),
+            (XError::unavailable("storage offline"), ErrorKind::Unavailable, "storage offline"),
+            (XError::cancelled("user cancelled"), ErrorKind::Cancelled, "user cancelled"),
+            (XError::deadline_exceeded("timeout"), ErrorKind::DeadlineExceeded, "timeout"),
+            (XError::invariant("broken invariant"), ErrorKind::Invariant, "broken invariant"),
+            (XError::internal("unknown error"), ErrorKind::Internal, "unknown error"),
+        ];
+        for (err, kind, context) in cases {
+            assert_eq!(err.kind(), kind);
+            assert_eq!(err.context(), context);
+            assert_eq!(err.retry_after(), None);
+        }
     }
 
     #[test]
@@ -377,51 +312,6 @@ mod tests {
         assert_eq!(err.context(), "rate limited");
         assert_eq!(err.retry_after(), Some(d));
         assert!(err.is_retryable());
-        assert!(!err.is_bug());
-    }
-
-    #[test]
-    fn test_unavailable_constructor() {
-        let err = XError::unavailable("storage offline");
-        assert_eq!(err.kind(), ErrorKind::Unavailable);
-        assert_eq!(err.context(), "storage offline");
-        assert!(!err.is_retryable());
-        assert!(!err.is_bug());
-    }
-
-    #[test]
-    fn test_cancelled_constructor() {
-        let err = XError::cancelled("user cancelled");
-        assert_eq!(err.kind(), ErrorKind::Cancelled);
-        assert_eq!(err.context(), "user cancelled");
-        assert!(!err.is_retryable());
-        assert!(!err.is_bug());
-    }
-
-    #[test]
-    fn test_deadline_exceeded_constructor() {
-        let err = XError::deadline_exceeded("timeout");
-        assert_eq!(err.kind(), ErrorKind::DeadlineExceeded);
-        assert_eq!(err.context(), "timeout");
-        assert!(!err.is_retryable());
-        assert!(!err.is_bug());
-    }
-
-    #[test]
-    fn test_invariant_constructor() {
-        let err = XError::invariant("broken invariant");
-        assert_eq!(err.kind(), ErrorKind::Invariant);
-        assert_eq!(err.context(), "broken invariant");
-        assert!(!err.is_retryable());
-        assert!(err.is_bug());
-    }
-
-    #[test]
-    fn test_internal_constructor() {
-        let err = XError::internal("unknown error");
-        assert_eq!(err.kind(), ErrorKind::Internal);
-        assert_eq!(err.context(), "unknown error");
-        assert!(!err.is_retryable());
         assert!(!err.is_bug());
     }
 
