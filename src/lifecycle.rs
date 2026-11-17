@@ -415,8 +415,8 @@ mod tests {
         // 同模块可触及 `ShutdownInner.triggered`，注入真实 poison。
         // 首次 lock 必成功，用 unwrap（避免测试里未覆盖的 poison 分支污染 line 覆盖率）。
         let poison = std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| {
-            let _held = signal.inner.triggered.lock().expect("lock before poison");
-            panic!("intentional mutex poison for §11.1 poison recovery");
+            let _held = signal.inner.triggered.lock().expect("lock before poison"); // PANIC: 测试内前置断言；失败即测试失败
+            panic!("intentional mutex poison for §11.1 poison recovery"); // PANIC: catch_unwind 预期捕获的 poison 注入
         }));
         assert!(poison.is_err(), "setup must poison the mutex");
 
@@ -442,14 +442,14 @@ mod tests {
 
         // 在 wait 阻塞期间毒化 mutex
         let poison = std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| {
-            let _held = signal.inner.triggered.lock().expect("lock to poison");
-            panic!("poison while waiter blocked");
+            let _held = signal.inner.triggered.lock().expect("lock to poison"); // PANIC: 测试内前置断言；失败即测试失败
+            panic!("poison while waiter blocked"); // PANIC: catch_unwind 预期捕获的 poison 注入
         }));
         assert!(poison.is_err());
 
         // trigger 经 into_inner 写标志 + notify；waiter 在 reacquire 时走 poison 恢复
         guard.trigger();
-        waiter.join().expect("waiter");
+        waiter.join().expect("waiter"); // PANIC: 测试内前置断言；失败即测试失败
         assert!(signal.is_triggered());
     }
 
@@ -504,7 +504,7 @@ mod tests {
         let (guard, signal) = ShutdownSignal::new();
         let observer = signal.clone();
         let done = thread::spawn(move || observer.wait_timeout(Duration::from_millis(30)).unwrap());
-        let timed_out = !done.join().expect("join");
+        let timed_out = !done.join().expect("join"); // PANIC: 测试内前置断言；失败即测试失败
         assert!(timed_out, "deadline exceeded without trigger");
         guard.trigger();
         assert!(signal.is_triggered());
@@ -548,7 +548,7 @@ mod tests {
         thread::sleep(Duration::from_millis(10));
         // 未置 triggered 的 notify 等价于伪唤醒；不得误报触发，也不得重算 deadline。
         s.inner.cv.notify_all();
-        let (result, elapsed) = waiter.join().expect("waiter");
+        let (result, elapsed) = waiter.join().expect("waiter"); // PANIC: 测试内前置断言；失败即测试失败
         assert_eq!(result, Ok(false));
         assert!(elapsed >= Duration::from_millis(50));
         // 上界：原 deadline 80ms + slack，避免伪唤醒后无限等或重算更长 deadline。
