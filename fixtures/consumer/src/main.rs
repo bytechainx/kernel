@@ -19,9 +19,8 @@ fn main() {
     assert!(!observer.is_triggered());
     guard.trigger();
     assert!(observer.is_triggered());
-    assert!(signal
-        .wait_timeout(Duration::from_millis(10))
-        .expect("deadline 可表示"));
+    assert!(signal.wait_timeout(Duration::from_millis(10)).expect("deadline 可表示"));
 
-    println!("kernel-consumer-fixture: ok");
+    let profile = std::env::var("KERNEL_LIVE_PROFILE").unwrap_or_else(|_| "unset".to_string());
+    println!("kernel-consumer-fixture: ok profile={profile}");
 }

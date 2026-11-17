@@ -65,3 +65,27 @@ production-readiness:supply:
     - node scripts/check-licenses.mjs
     - node scripts/check-evidence.mjs
     - node scripts/bench-baseline.mjs 3
+
+kernel-prod-live:
+  extends: .rust
+  stage: test
+  variables:
+    KERNEL_LIVE_PROFILE: "production"
+  artifacts:
+    when: always
+    expire_in: 30 days
+    paths:
+      - kernel-live-receipt.json
+  script:
+    - |
+      curl -fsSLO https://nodejs.org/dist/v22.23.5/node-v22.23.5-linux-x64.tar.xz
+      tar -xJf node-v22.23.5-linux-x64.tar.xz -C /usr/local --strip-components=1
+      rm -f node-v22.23.5-linux-x64.tar.xz
+      node scripts/prod-live-receipt.mjs
+      test -s kernel-live-receipt.json
+      grep -q '"trust_level": "E1"' kernel-live-receipt.json
+      grep -q '"commit_sha"' kernel-live-receipt.json
+      grep -q "${CI_COMMIT_SHA}" kernel-live-receipt.json
+      cargo run --manifest-path fixtures/consumer/Cargo.toml | tee /tmp/kernel-live.out
+      grep -q 'kernel-consumer-fixture: ok' /tmp/kernel-live.out
+      grep -q 'profile=production' /tmp/kernel-live.out
