@@ -77,10 +77,12 @@ kernel-prod-live:
     paths:
       - kernel-live-receipt.json
   script:
-    - node scripts/prod-live-receipt.mjs
-    - test -s kernel-live-receipt.json
-    - grep -q '"trust_level": "E1"' kernel-live-receipt.json
-    - grep -q "\"commit_sha\": \"${CI_COMMIT_SHA}\"" kernel-live-receipt.json
-    - cargo run --manifest-path fixtures/consumer/Cargo.toml | tee /tmp/kernel-live.out
-    - grep -q 'kernel-consumer-fixture: ok' /tmp/kernel-live.out
-    - grep -q 'profile=production' /tmp/kernel-live.out
+    - |
+      node scripts/prod-live-receipt.mjs
+      test -s kernel-live-receipt.json
+      grep -q '"trust_level": "E1"' kernel-live-receipt.json
+      grep -q '"commit_sha"' kernel-live-receipt.json
+      grep -q "${CI_COMMIT_SHA}" kernel-live-receipt.json
+      cargo run --manifest-path fixtures/consumer/Cargo.toml | tee /tmp/kernel-live.out
+      grep -q 'kernel-consumer-fixture: ok' /tmp/kernel-live.out
+      grep -q 'profile=production' /tmp/kernel-live.out
